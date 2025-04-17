@@ -11,6 +11,7 @@ setup(
     url="https://github.com/rizwandel/New-RAG",
     packages=find_packages(),  # Automatically finds Python modules
     classifiers=[
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GPL License",
         "Operating System :: OS Independent",
