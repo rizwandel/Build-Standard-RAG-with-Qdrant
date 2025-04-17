@@ -1,0 +1,119 @@
+# ========================
+# 🐍 Python & Packaging
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+MANIFEST
+
+# ========================
+# 📦 Virtual Environments
+# ========================
+.env
+.envs/
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PEP 582 (experimental local packages)
+__pypackages__/
+
+# ========================
+# 📁 IDEs & Editors
+# ========================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# ========================
+# 📊 Logs, Reports, Debug
+# ========================
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# ========================
+# 🧪 Static Analysis Caches
+# ========================
+.mypy_cache/
+.pytype/
+.pyre/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# ========================
+# 🛠️ Build Tools
+# ========================
+.pdm.toml
+.pdm-python
+.pdm-build/
+.pybuilder/
+develop-eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+.installed.cfg
+
+# ========================
+# 📚 Documentation
+# ========================
+docs/_build/
+
+# ========================
+# 💻 OS-Specific (macOS, Windows, Linux)
+# ========================
+.DS_Store               # macOS junk
+Thumbs.db               # Windows Explorer thumbnail cache
+desktop.ini             # Windows-specific file
+$RECYCLE.BIN/           # Windows Recycle Bin folder
+
+# ========================
+# 🔬 Jupyter Notebooks
+# ========================
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# ========================
+# 🚀 Databricks
+# ========================
+*.dbc
+*.dbfs/
+.dbc/
+.dbx/
+.databricks/
+.databricks-connect/
+
+# ========================
+# 📦 Misc
+# ========================
+.Python
+.python-version
+*.manifest
+*.spec
+site/
+
+*.mo
+*.pot
+downloads/
+target/
