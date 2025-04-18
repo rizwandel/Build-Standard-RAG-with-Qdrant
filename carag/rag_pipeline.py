@@ -21,7 +21,7 @@ logger.addHandler(logging.NullHandler())
 # parent class
 class rag_pipe:
     """
-    Cache_RAG_pipeline (Cache aware Retrieval Augmented by Qdrant) is a class that provides functionality for storing and searching document embeddings in a Qdrant vector database.
+    rag_pipe is a class that provides functionality for storing and searching document/token embeddings in a Qdrant vector database.
     It supports both dense, sparse and late interaction embeddings, as well as a late interaction model for improved retrieval performance.
     Args:
         url (str): The URL of the Qdrant server.
@@ -29,20 +29,22 @@ class rag_pipe:
         collection_name (str): The name of the Qdrant collection to use. Defaults to "European_AI_Act_2024_PDF_Multi"
         dense_model_name (str): Defaults to "jinaai/jina-embeddings-v2-base-en".
         threshold (float): The threshold for the similarity score to consider a document relevant. Defaults to 0.9.
-        late_interaction_model_name (Optional[str]): The name of the late interaction model to use. Defaults to "jinaai/jina-colbert-v2".
+        cache_collection_name (Optional[str]): The name of the default to "cache"
         sparse_model_name (Optional[str]): The name of the sparse model to use. Defaults to "Qdrant/bm25".
-        cache_collection_name (Optional[str]): The name of the default cache name
+        late_interaction_model_name (Optional[str]): The name of the late interaction model to use. Defaults to "jinaai/jina-colbert-v2".
+        llm_model_name (str): The name of the Mistral LLM, defaults to "mistral-large-latest"
+        mistral_api_key (str): The MISTRAL_API_KEY
     """
     def __init__(self,
                  url: str,
                  api_key: str,
                  collection_name: str = "European_AI_Act_2024_PDF_Multi",
-                 llm_model_name: Optional[str]="mistral-large-latest",
-                 dense_model_name: str = "jinaai/jina-embeddings-v2-base-en",
+                 dense_model_name: Optional[str] = "jinaai/jina-embeddings-v2-base-en",
                  threshold: float = 0.9,
-                 late_interaction_model_name: Optional[str] = "jinaai/jina-colbert-v2",
+                 cache_collection_name: str = "cache",
                  sparse_model_name: Optional[str] = "Qdrant/bm25",
-                 cache_collection_name: str = "qdrant_cache",
+                 late_interaction_model_name: Optional[str] = "jinaai/jina-colbert-v2",
+                 llm_model_name: Optional[str]="mistral-large-latest",
                  mistral_api_key: str = None
                  ):
         # initialize embedding models
@@ -328,8 +330,7 @@ class rag_pipe:
                 return []
             return results[0].points  # Returning ScoredPoint objects
     
-    # invoke method to handle the query and return the response
-    # This method will first check the cache and then search the database if not found in the cache
+    # invoke method to handle the query and return the response - This method will first check the cache and then search the database if not found in the cache
     def _format_result(self, result, elapsed_time):
         """Consistent result formatting"""
         #logger.info(f"result_id: {result.id}, Answer:\n{result.payload['response']}\nScore: {result.score}")
