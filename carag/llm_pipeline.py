@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-# Define the GroundGeneration class for grounded generation using Mistral LLM.
+# Define the GroundGeneration class using Mistral AI models.
 class GroundGeneration(rag_pipe):
     """
     The class is designed to work with the Mistral API and Qdrant vector search engine.
@@ -22,16 +22,15 @@ class GroundGeneration(rag_pipe):
     It uses Mistral LLMs for generating grounded responses based on search results from the Qdrant database.
     It includes methods for preparing prompts, generating responses, and parsing JSON outputs.
     The class is initialized with the Qdrant server URL, Qdrant API key, and Mistral API key.
-    """
-    def __init__(self,url:str,api_key: str,mistral_api_key: str,collection_name: str,llm_model_name: Optional[str]="mistral-large-latest"):
-        """
-        Get top 3 answers (grounded generation) to the user question from the top 50 re-ranked results from cache_rag_pipeline class.
+    Get top 3 answers (grounded generation) to the user question from the top 50 re-ranked results from cache_rag_pipeline class.
     Args:
         url (str): The URL of the Qdrant server.
         api_key (str): The API key for the Qdrant server.
         mistral_api_key (str): The API key for the Mistral model.
+        collection_name (str): The name of collection in Qdrant
+        llm_model_name (str): Defaults to "mistral-large-latest"
     """
-        # Initialize the RAG pipeline
+    def __init__(self,url:str,api_key: str,mistral_api_key: str,collection_name: str,llm_model_name: Optional[str]="mistral-large-latest"):
         super().__init__(url=url, api_key=api_key,collection_name=collection_name)  # Initialize the superclass
         rag= rag_pipe(url=url, api_key=api_key, collection_name=collection_name)
         self.collection_name=collection_name
