@@ -5,7 +5,7 @@ setup(
     version="1.0.6",  
     author="Mohamed Rizwan",
     author_email="rizdelhi@gmail.com",
-    description="A Python Package for RAG",
+    description="An efficient Python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/rizwandel/Build-Standard-RAG-with-Qdrant",
