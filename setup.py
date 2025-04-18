@@ -1,15 +1,15 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="carag",  # Replace with your package name
-    version="1.0.6",  # Initial version
+    name="carag",  # package name
+    version="1.0.6",  
     author="Mohamed Rizwan",
     author_email="rizdelhi@gmail.com",
     description="A Python Package for RAG",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/rizwandel/New-RAG",
-    packages=find_packages(),  # Automatically finds Python modules
+    url="https://github.com/rizwandel/Build-Standard-RAG-with-Qdrant",
+    packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
@@ -18,10 +18,11 @@ setup(
     ],
     python_requires=">=3.9",  # Minimum Python version
     install_requires=[
-        "PyMuPDF==1.25.3", # PDF Document loader
+        "PyMuPDF==1.25.3",
         "fastembed==0.6.0",
-        "qdrant-client==1.10.0", # Qdrant vector database
+        "qdrant-client==1.10.0", 
         "mistralai==1.6.0",
-        "python-dotenv==1.1.0"
-    ],  # List dependencies (if any)
+        "python-dotenv==1.1.0",
+        "ipywidgets==8.1.6"
+    ], 
 )
