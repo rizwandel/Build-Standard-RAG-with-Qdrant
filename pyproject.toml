@@ -16,10 +16,12 @@ dependencies = [
     "PyMuPDF==1.25.3",
     "fastembed==0.6.0",
     "qdrant-client==1.10.0",
-    "python-dotenv==1.1.0"
+    "python-dotenv==1.1.0",
+    "ipywidgets=8.1.6",
+    "pytest==8.3.5"
 ]
 classifiers = [
-    "Development Status ::  3 - Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
