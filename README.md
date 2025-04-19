@@ -9,7 +9,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/rizwandel/Build-standard-RAG-with-Qdrant?color=red&label=stars&logoColor=black&style=social)
 
 <div align="centre" >
-<img src="/images/vanilla_rag.png" alt="weaviate">
+<img src="/vanilla_rag.png" alt="weaviate">
 <h8 align="left"> source: www.weaviate.com </h8>
 </div>
   
