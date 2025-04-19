@@ -3,10 +3,10 @@
 ## Supported Versions
 | Version | Supported          |
 | ------- | ------------------ |
-| `main`  | ✅ Yes             |
+| 1.0.6 | ✅ Yes             |
 | All pre-releases | ❌ No      |
 
-> ⚠️ No production deployments recommended until v1.0.0.
+> ⚠️ No production deployments recommended until v1.1.0.
 
 ## Reporting a Vulnerability
 
