@@ -44,6 +44,60 @@ class GroundGeneration(rag_pipe):
         self.llm_client = Mistral(api_key=self.mistral_api_key)
         if not self.llm_client:
             raise ValueError("Failed to initialize Mistral client. Please check your API key.")
+        
+    def prepare_llm_prompt(self, query: str, prompt_template: str = "") -> str:
+        """Prepare the prompt for the LLM.
+
+        This method prepares the prompt for the LLM based on the given query and an optional prompt template.
+        It retrieves search results using the `rag` object and formats them into the prompt.
+        Additional instructions for the LLM are also included in the prompt.
+
+        Args:
+            query (str): The query for which to prepare the prompt.
+            prompt_template (str, optional): An optional prompt template to use. Defaults to "".
+
+        Returns:
+            str: The prepared prompt for the LLM.
+        """
+        lines = []
+        if not prompt_template:
+            lines.append("""You are a prompt engineering expert tasked with search results based on relevance.
+        Below are the search results with their payloads and scores.
+        Search Results:""")
+        try:
+            search_results = self.rag.invoke(query)
+            if search_results and isinstance(search_results, list):
+                lines.extend(
+                    f"{idx + 1}. ID: {result.id}, Score: {result.score}, Payload: {result.payload['text']}"
+                    for idx, result in enumerate(search_results)
+                    if result.payload and result.payload['text']
+                )
+        except Exception as e:
+            logging.info(f"An error occurred while preparing the prompt: {e}")
+        # Additional instructions
+        lines.extend([
+            f"query: {query}",
+            """Instructions:
+            1. Analyze the payloads and score to re-rank the results based on relevance to the query.
+            2. Select the top 3 results based on reciprocal rank fusion to summarize the correct answers.
+            3. Provide a reason for selecting each of the top 3 results. 
+            4. If the result is not relevant, search for other relevant answers within the payloads.
+            5. If the result did not contain approximate keywords, search for other relevant answers within the payloads.
+            4. The JSON response should include the following structure:
+            {
+            "top_results" to the query/question: [
+                {"id": "result_id_1", "answer": "answer","reason": "reason for selection"},
+                {"id": "result_id_2", "answer": "answer","reason": "reason for selection"},
+                {"id": "result_id_3", "answer": "answer","reason": "reason for selection"}]
+            }
+            5. Ensure the JSON is well-structured and valid.
+            6. Do not include any other text or explanation outside the JSON format.
+            7. The JSON should be formatted with proper indentation for readability.
+            8. The answer should be in the context of the question or query asked.
+            9. Each answer should be contains not less than 256 tokens.
+    """
+        ])
+        return "\n".join(lines)
 
     def grounded_generation_from_llm(self,query: str,llm_model_name: str = "mistral-large-latest",temperature = 0.7,max_tokens: int = 20000) -> dict:
         """
@@ -107,43 +161,4 @@ class GroundGeneration(rag_pipe):
             return {}
         return response_dict
     
-    def prepare_llm_prompt(self, query: str, prompt_template: str = "") -> str:
-        lines = []
-        if not prompt_template:
-            lines.append("""You are a prompt engineering expert tasked with search results based on relevance.
-        Below are the search results with their payloads and scores.
-        Search Results:""")
-        try:
-            search_results = self.rag.invoke(query)
-            if search_results and isinstance(search_results, list):
-                lines.extend(
-                    f"{idx + 1}. ID: {result.id}, Score: {result.score}, Payload: {result.payload['text']}"
-                    for idx, result in enumerate(search_results)
-                    if result.payload and result.payload['text']
-                )
-        except Exception as e:
-            logging.info(f"An error occurred while preparing the prompt: {e}")
-        # Additional instructions
-        lines.extend([
-            f"query: {query}",
-            """Instructions:
-            1. Analyze the payloads and score to re-rank the results based on relevance to the query.
-            2. Select the top 3 results based on reciprocal rank fusion to summarize the correct answers.
-            3. Provide a reason for selecting each of the top 3 results. 
-            4. If the result is not relevant, search for other relevant answers within the payloads.
-            5. If the result did not contain approximate keywords, search for other relevant answers within the payloads.
-            4. The JSON response should include the following structure:
-            {
-            "top_results" to the query/question: [
-                {"id": "result_id_1", "answer": "answer","reason": "reason for selection"},
-                {"id": "result_id_2", "answer": "answer","reason": "reason for selection"},
-                {"id": "result_id_3", "answer": "answer","reason": "reason for selection"}]
-            }
-            5. Ensure the JSON is well-structured and valid.
-            6. Do not include any other text or explanation outside the JSON format.
-            7. The JSON should be formatted with proper indentation for readability.
-            8. The answer should be in the context of the question or query asked.
-            9. Each answer should be contains not less than 256 tokens.
-    """
-        ])
-        return "\n".join(lines)
+    

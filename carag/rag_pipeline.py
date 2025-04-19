@@ -39,13 +39,13 @@ class rag_pipe:
                  url: str,
                  api_key: str,
                  collection_name: str = "European_AI_Act_2024_PDF_Multi",
-                 dense_model_name: Optional[str] = "jinaai/jina-embeddings-v2-base-en",
+                 dense_model_name: str = "jinaai/jina-embeddings-v2-base-en",
                  threshold: float = 0.9,
                  cache_collection_name: str = "cache",
                  sparse_model_name: Optional[str] = "Qdrant/bm25",
                  late_interaction_model_name: Optional[str] = "jinaai/jina-colbert-v2",
                  llm_model_name: Optional[str]="mistral-large-latest",
-                 mistral_api_key: str = None
+                 mistral_api_key: Optional[str] = None
                  ):
         # initialize embedding models
         try:
@@ -235,6 +235,16 @@ class rag_pipe:
             raise ValueError("Late interaction model is not initialized.")
     
     def search_cache(self, query: str):
+        """Search the cache for a given query.
+
+        This method searches the cache for a given query and returns the cached result if found and relevant.
+
+        Args:
+            query (str): The query to search for.
+
+        Returns:
+            models.ScoredPoint: The cached result if found and relevant, otherwise None.
+        """
         try:
             results= self.cache_client.search(
                 collection_name=self.cache_collection_name,
@@ -263,6 +273,15 @@ class rag_pipe:
             return score >= self.euclidean_threshold  # Higher = better
     
     def add_to_cache(self, query:str, response:str):
+        """Add a query and its response to the cache.
+
+        This method takes a query and its corresponding response and adds them to the cache.
+        It generates a unique ID for the entry and stores the query, response, and query embedding in the cache.
+
+        Args:
+            query (str): The query to add to the cache.
+            response (str): The response to the query.
+        """
         vector_name = "jina-embeddings-v2-base-en"
         # create a unique ID for the query and response text
         point_id = str(uuid.uuid4())
@@ -283,6 +302,17 @@ class rag_pipe:
         logger.info(f"Added to cache: {query} -> {response}")    
     
     def search(self,query: str) -> List[models.ScoredPoint]:
+        """Search the Qdrant database for a given query.
+
+        This method searches the Qdrant database using a hybrid search approach with dense and sparse embeddings.
+        It retrieves and returns the top relevant results from the database.
+
+        Args:
+            query (str): The query to search for.
+
+        Returns:
+            List[models.ScoredPoint]: A list of scored points representing the search results.
+        """
         # Parallel embedding generation
         with ThreadPoolExecutor() as executor:
         # Submit tasks to the executor
@@ -338,6 +368,19 @@ class rag_pipe:
         return result.payload['response']
     
     def invoke(self, query: str):
+        """Handle the query and return the response.
+
+        This method first checks the cache for the query. If found, it returns the cached result.
+        Otherwise, it searches the database and returns the results.
+        If no results are found, it returns None.
+
+        Args:
+            query (str): The query to process.
+
+        Returns:
+            List[models.ScoredPoint] or str : The search results from the database or the cached response.
+            Returns None if no results are found.
+        """
         start_time = time.time()
         if cached := self.search_cache(query):
             #logger.info(f"Cache hit")
