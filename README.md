@@ -113,8 +113,9 @@ Feel free to contribute to the improvement in the source code by reporting bugs,
 ### QR code for feedback form and appointments
 
 <div align="left" >
-<img src="images/gravatar_QR.png" alt="QR code">
+<img src="images/gravatar_QR.png" alt="QR code" width="200" height="200">
 </div>
+
 
 
 Don't forget to [star (🌟) this repo](https://github.com/rizwandel/Build-standard-RAG-with-Qdrant) to find it easier later.
