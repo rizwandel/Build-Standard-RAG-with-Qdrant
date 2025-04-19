@@ -9,7 +9,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/rizwandel/Build-standard-RAG-with-Qdrant?color=red&label=stars&logoColor=black&style=social)
 
 <div align="centre" >
-<img src="/vanilla_rag.png" alt="weaviate">
+<img src="images/vanilla_rag.png" alt="weaviate">
 <h8 align="left"> source: www.weaviate.com </h8>
 </div>
   
@@ -30,24 +30,22 @@
 
 ## 🌱 Getting Started
 #### Prerequisites
-- tqdm
 - PyMuPDF
 - Mistral
 - fastembed
 - qdrant_client
-- logging
-- json
+- ipywidgets
 
 #### 🚀 Installation
 
-To install **CARAG**, simply run:
+To install **CARAG**, simply run: (latest version)
 
 ```bash
-pip install carag
+pip install carag==1.0.6 
 ```
 #### Setting Environment Variables
 ```
-python3.11 -m venv <env-name>
+python3 -m venv <env-name>
 source venv/bin/activate  # On macOS/Linux
 venv\Scripts\activate  # On Windows
 ```
@@ -71,8 +69,8 @@ mistral_api_key=<your_mistral_api_key>
 ## 📦 Usage
 
 ```python
-from carag.rag_pipeline import rag_pipe
-from carag.llm_pipeline import GroundGeneration
+from carag.rag_pipe import *
+from carag.llm_pipeline import *
 
 rag = rag_pipe(
     url="YOUR_QDRANT_URL", 
@@ -88,7 +86,6 @@ top_100_results = rag.invoke(query="your search query")
 ```
 
 ```python
-from carag import  GroundGeneration
 
 gg = GroundGeneration(
       url="YOUR_QDRANT_URL", 
@@ -111,19 +108,11 @@ top_3_responses = gg.ground_generation_from_llm(url="YOUR_QDRANT_URL",query="you
 
 Feel free to contribute to the improvement in the source code by reporting bugs, suggesting features, or submitting pull requests.
 
+### QR code for feedback form and appointments
 
-
-
-
-
-
-
-
-
-
-
-
-
+<div align="left" >
+<img src="images/gravatar_QR.png" alt="weaviate">
+</div>
 
 
 Don't forget to [star (🌟) this repo](https://github.com/rizwandel/Build-standard-RAG-with-Qdrant) to find it easier later.
