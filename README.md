@@ -3,7 +3,7 @@
   <h1 align="centre"> CARAG: A powerful python library that helps to develop AI applications with RAG pipeline </h1>
 </div>
   
-![Supported python versions](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
+![Supported python versions](https://img.shields.io/badge/python->=3.9-blue)
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-black.svg)](https://www.python.org/dev/peps/pep-0008/)
 [![License](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 ![GitHub stars](https://img.shields.io/github/stars/rizwandel/Build-standard-RAG-with-Qdrant?color=red&label=stars&logoColor=black&style=social)
@@ -60,48 +60,77 @@ pip install -r requirements.txt
 Create a file named .env in the root directory of your project. This file will store your API keys and other sensitive information.
 
 ```
+import os
 from dotenv import load_dotenv
 load_env()
 
-url =<qdrant_url>
-api_key=<your_qdrant_api_key>
-mistral_api_key=<your_mistral_api_key>
+url    =os.getenv(YOUR_QDRANT_URL)
+api_key=os.getenv(YOUR_QDRANT_API_KEY)
+mistral_api_key=os.getennv(YOUR_MISTRAL_API_KEY)
 ```
 
 ## 📦 Usage
 
 ```python
-from carag.rag_pipe import *
-from carag.llm_pipeline import *
-
-rag = rag_pipe(
-    url="YOUR_QDRANT_URL", 
-    api_key="YOUR_API_KEY", 
-    collection_name="YOUR_COLLECTION_NAME" # use if exists or create a collection in Qdrant cloud DB
-)
-
-# Store embeddings from a list of key,value pairs extracted from the PDF or CSV file 
-rag.upload_text_chuncks(text_chunks,batch_size=1)
-
-# Get the top 100 search results for the query (from the existing collection in vector DB)
-top_100_results = rag.invoke(query="your search query")
+from carag import *
 ```
+
+#### Initiate RAG pipeline object 
+> If there's no collection in the Qdrant DB, it creates collection name (e.g., collection_name='test')
 
 ```python
 
 gg = GroundGeneration(
       url="YOUR_QDRANT_URL", 
-      api_key="YOUR_API_KEY",
+      api_key="YOUR_QDRANT_API_KEY",
       mistral_api_key="YOUR_MISTRAL_API_KEY",
-      collection_name="YOUR_COLLECTION_NAME"
+      collection_name="YOUR_COLLECTION_NAME" # if exists or choose a name (collection with the choosen name will be created)
 )
 
-# Get top 3 responses from the Mistral LLM
-top_3_responses = gg.ground_generation_from_llm(url="YOUR_QDRANT_URL",query="your search query",api_key="YOUR_API_KEY",mistral_api_key="YOUR_MISTRAL_API_KEY",collection_name="YOUR_COLLECTION_NAME")
 ```
+#### upload text chunks to collection
+> e.g., collection_name ="test"
 
+**example data**
+```python
 
-> NOTE
+text_chunks = [
+    {
+        "text": "The EU AI Act prohibits certain uses of artificial intelligence (AI). These include AI systems that manipulate people's decisions or exploit their vulnerabilities, systems that evaluate or classify people based on their social behavior or personal traits, and systems that predict a person's risk of committing a crime.",
+        "metadata": {"source": "prohibited AI practice", "page": 1}
+    },
+    {
+        "text": "Article 4 of the AI Act requires providers and deployers of AI systems to ensure a sufficient level of AI literacy to their staff and anyone using the systems on their behalf. The article entered into application on 2 February 2025. Several organisations have anticipated and prepared themselves",
+        "metadata": {"source": "Article 4", "page": 2}
+    },
+    {
+        "text": "Banned AI applications in the EU include: Cognitive behavioural manipulation of people or specific vulnerable groups: for example voice-activated toys that encourage dangerous behaviour in children",
+        "metadata": {"source": "unacceptable risk", "page": 3}
+    },
+]
+
+# it stores embeddings from a list of key,value pairs of text_chunks - List[Dict]
+gg.upload_text_chuncks(text_chunks,batch_size=1)
+
+```
+#### Get the top search result for the query (If the collection has embedding vectors stored in the vector DB)
+
+```python
+all_results = gg.invoke(query="your search query")
+print(all_results[0].payload['response']
+```
+#### Get the top response/ answer from the Mistral LLM
+
+```python
+
+top3_responses = gg.ground_generation_from_llm(query="your_query",llm_model_name="mistral-large-latest", temperature=0, max_tohens=10000) # temparature=0 precise; temparature=1 random
+answer = top3_results['top_results'][0]['answer']
+print(answer)
+```
+### IMPORTANT NOTES
+
+- ***ONLY Mistral AI LLMs are supported as of now.***
+
 - **Qdrant** offers a free tier with 4GB of storage. To generate your API key and endpoint, visit [Qdrant](https://qdrant.tech/).
 
 - **Mistral AI** offers a free Tier with 1 billion tokens per month or 500K tokens per minute or 1 RPS.
