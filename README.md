@@ -27,7 +27,7 @@
 
 <!-- Links -->
 <p align="left">
-  <a href="https://rizdelhi.medium.com" style="color: #06b6d4;"> Read more on the medium Blog</a> 
+  <a href="https://rizdelhi.medium.com/carag-a-powerful-python-library-for-semantic-search" style="color: #06b6d4;"> Read more on the medium Blog</a> 
 </p>
 
 ## 🌱 Getting Started
