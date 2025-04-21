@@ -45,16 +45,18 @@ To install **CARAG**, simply run: (latest version)
 ```bash
 pip install carag==1.0.6 
 ```
-#### Setting Environment Variables
+#### Set virtual environment 
 ```
-python3 -m venv <env-name>
+python3 -m venv venv
 source venv/bin/activate  # On macOS/Linux
 venv\Scripts\activate  # On Windows
 ```
 #### Install dependencies
 
 ```python
+
 pip install -r requirements.txt
+
 ```
 #### Create an .environment file
 Create a file named .env in the root directory of your project. This file will store your API keys and other sensitive information.
@@ -119,17 +121,19 @@ gg.upload_text_chuncks(text_chunks,batch_size=1)
 all_results = gg.invoke(query="your search query")
 print(all_results[0].payload['response']
 ```
-#### Get the top response/ answer from the Mistral LLM
+#### Get the top response / answer from the Mistral LLM
 
 ```python
 
 top3_responses = gg.ground_generation_from_llm(query="your_query",llm_model_name="mistral-large-latest", temperature=0, max_tohens=10000) # temparature=0 precise; temparature=1 random
-answer = top3_results['top_results'][0]['answer']
+answer = top3_responses['top_results'][0]['answer']
 print(answer)
+
 ```
+
 ### IMPORTANT NOTES
 
-- ***ONLY Mistral AI LLMs are supported as of now.***
+***ONLY Mistral AI LLMs are supported as of now.***
 
 - **Qdrant** offers a free tier with 4GB of storage. To generate your API key and endpoint, visit [Qdrant](https://qdrant.tech/).
 
