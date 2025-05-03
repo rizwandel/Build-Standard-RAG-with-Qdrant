@@ -24,5 +24,5 @@ setup(
         "mistralai==1.6.0",
         "python-dotenv==1.1.0",
         "ipywidgets==8.1.6"
-    ], 
+    ]
 )
