@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "carag"
-version = "1.0.6"
-description = "An efficient Python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline."
+version = "1.0.7"
+description = "An efficient python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 authors = [{ name="Mohamed Rizwan", email="rizdelhi@gmail.com" }]
-keywords = ["AI", "RAG", "LLM", "Retrieval", "Qdrant"]
+keywords = ["Semantic search", "RAG", "Mistral AI", "Retrieval", "Qdrant"]
 dependencies = [
     "mistralai==1.6.0",
     "PyMuPDF==1.25.3",

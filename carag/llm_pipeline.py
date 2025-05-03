@@ -16,25 +16,32 @@ logger.addHandler(logging.NullHandler())
 
 # Define the GroundGeneration class using Mistral AI models.
 class GroundGeneration(rag_pipe):
-    """
-    The class is designed to work with the Mistral API and Qdrant vector search engine.
-    It inherits from the Cache_RAG_piepline class, which handles the caching and retrieval of search results
-    It uses Mistral LLMs for generating grounded responses based on search results from the Qdrant database.
-    It includes methods for preparing prompts, generating responses, and parsing JSON outputs.
-    The class is initialized with the Qdrant server URL, Qdrant API key, and Mistral API key.
-    Get top 3 answers (grounded generation) to the user question from the top 50 re-ranked results from cache_rag_pipeline class.
-    Args:
+    def __init__(
+        self,
+        url:str,
+        api_key: str,
+        mistral_api_key: str,
+        collection_name: str,
+        llm_model_name: Optional[str]="mistral-large-latest",
+        **kwargs
+        ):
+        """
+        The class is designed to work with the Mistral API and Qdrant vector search engine.
+        It inherits from the rag_pipe class, which handles the caching and retrieval of search results
+        It uses Mistral LLMs for generating grounded responses based on search results from the Qdrant database.
+        It includes methods for preparing prompts, generating responses, and parsing JSON outputs.
+        The class is initialized with the Qdrant server URL, Qdrant API key, and Mistral API key.
+        Get top 3 answers (grounded generation) to the user question from the top 50 re-ranked results from cache_rag_pipeline class.
+        
+        Args:
         url (str): The URL of the Qdrant server.
         api_key (str): The API key for the Qdrant server.
         mistral_api_key (str): The API key for the Mistral model.
         collection_name (str): The name of collection in Qdrant
         llm_model_name (str): Defaults to "mistral-large-latest"
-    """
-    def __init__(self,url:str,api_key: str,mistral_api_key: str,collection_name: str,llm_model_name: Optional[str]="mistral-large-latest"):
-        super().__init__(url=url, api_key=api_key,collection_name=collection_name)  # Initialize the superclass
-        rag= rag_pipe(url=url, api_key=api_key, collection_name=collection_name)
+        """
+        super().__init__(url=url, api_key=api_key,collection_name=collection_name,llm_model_name=llm_model_name,mistral_api_key=mistral_api_key,**kwargs)  # Initialize the superclass
         self.collection_name=collection_name
-        self.rag = rag
         self.api_key=api_key or os.environ.get("api_key")
         self.mistral_api_key = mistral_api_key or os.environ.get("mistral_api_key")
         if not self.mistral_api_key:
@@ -64,8 +71,9 @@ class GroundGeneration(rag_pipe):
             lines.append("""You are a prompt engineering expert tasked with search results based on relevance.
         Below are the search results with their payloads and scores.
         Search Results:""")
+        #self.rag= rag_pipe(url=url, api_key=api_key, collection_name=collection_name)    
         try:
-            search_results = self.rag.invoke(query)
+            search_results = self.rag_pipe.invoke(query)
             if search_results and isinstance(search_results, list):
                 lines.extend(
                     f"{idx + 1}. ID: {result.id}, Score: {result.score}, Payload: {result.payload['text']}"
@@ -99,13 +107,19 @@ class GroundGeneration(rag_pipe):
         ])
         return "\n".join(lines)
 
-    def grounded_generation_from_llm(self,query: str,llm_model_name: str = "mistral-large-latest",temperature = 0.7,max_tokens: int = 20000) -> dict:
+    def grounded_generation_from_llm(
+        self,
+        query: str,
+        llm_model_name: str = "mistral-large-latest",
+        temperature: float = 0.1,
+        max_tokens: Optional[int] = 20000
+        ) -> dict:
         """
         Generate response using Mistral model and parse the JSON output.
         
         Args:
             llm_model_name: Name of the LLM model to use (default: "mistral-large-latest")
-            # The model name should be a valid model available in the Mistral API.
+            Note: The model name should be a valid model available in the Mistral API.
             query: The query to be answered
             
         Returns:
@@ -129,7 +143,7 @@ class GroundGeneration(rag_pipe):
         chat_response = self.llm_client.chat.complete(
             model=self.llm_model_name or "mistral-large-latest",
             messages=[
-                {"role": "system", "content": "You're a helpful assistant."},
+                {"role": "system", "content": "You're a helpful assistant. Answer the questions in polite and professional manner."},
                 {"role": "user", "content": prompt}
                 ],
                 temperature=temperature,

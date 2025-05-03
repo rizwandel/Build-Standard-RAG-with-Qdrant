@@ -3,7 +3,7 @@
 ## Supported Versions
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.6 | ✅ Yes             |
+| 1.0.7 | ✅ Yes             |
 | All pre-releases | ❌ No      |
 
 > ⚠️ No production deployments recommended until v1.1.0.

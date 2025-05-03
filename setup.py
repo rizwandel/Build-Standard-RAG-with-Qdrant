@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="carag",  # package name
-    version="1.0.6",  
+    name="carag",  
+    version="1.0.7",  
     author="Mohamed Rizwan",
     author_email="rizdelhi@gmail.com",
-    description="An efficient Python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline.",
+    description="An efficient python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/rizwandel/Build-Standard-RAG-with-Qdrant",
