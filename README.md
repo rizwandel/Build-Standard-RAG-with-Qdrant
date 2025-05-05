@@ -43,7 +43,7 @@
 To install **CARAG**, simply run: (latest version)
 
 ```bash
-pip install carag==1.0.7 
+pip install carag==1.0.8
 ```
 #### Set virtual environment 
 ```
@@ -78,21 +78,25 @@ mistral_api_key=os.getenv(YOUR_MISTRAL_API_KEY)
 from carag import *
 ```
 
-#### Initiate RAG pipeline object 
+#### Initiate pipeline objects
 > If there's no collection in the Qdrant DB, it creates collection name (e.g., collection_name='test')
 
 ```python
+
+rag = rag_pipe(url="YOUR_QDRANT_URL", 
+      api_key="YOUR_QDRANT_API_KEY",
+      collection_name="YOUR_COLLECTION_NAME")
 
 gg = GroundGeneration(
       url="YOUR_QDRANT_URL", 
       api_key="YOUR_QDRANT_API_KEY",
       mistral_api_key="YOUR_MISTRAL_API_KEY",
       collection_name="YOUR_COLLECTION_NAME",
-      llm_model_name="MISTRAL_LLM_NAME"
+      llm_model_name="MISTRAL_LLM_NAME",
+      temperature=0.7, max_tokens=2000
 )
 
 # collection with the chosen name will be created, if not exists
-
 ```
 #### upload text chunks to collection
 > e.g., collection_name ="test"
@@ -116,23 +120,32 @@ text_chunks = [
 ]
 
 # indexes & stores embeddings from a list of key,value pairs of text chunks - List[Dict]
-gg.upload_text_chunks(text_chunks, collection_name, batch_size=1)
-
+rag_pipe.upload_text_chunks(
+  url="YOUR_QDRANT_URL", 
+  api_key="YOUR_QDRANT_API_KEY",
+  text_chunks="YOUR_TEXT_CHUNKS,
+  collection_name="YOUR_COLLECTION_NAME",
+  batch_size=1
+)
 ```
 #### Get the top search result for the query (If the collection has embedding vectors stored in the vector DB)
 
 ```python
-all_results = gg.invoke(query="your search query")
-print(all_results[0].payload['response']
+#### example:
+top_k_scored_points = rag.invoke(url, api_key, "What are the key points of the European AI Act 2024?", 'test')
+
+or
+
+top_10_scored_points= gg.retrieve("What are the key points of the European AI Act 2024?", 'test',cache_first=True,top_k=10)
 ```
 #### Get the top 3 responses / answers from the Mistral LLM
 
 ```python
 
-top_responses = gg.ground_generation_from_llm(query="your_query",llm_model_name="mistral-large-latest", temperature=0, max_tokens=10000)
+top_responses = gg.grounded_generation_from_llm(query="your_query")
 # temperature=0 precise; temperature=1 random
-answer = top_responses['top_results'][0]['answer']
-print(answer)
+answers = top_responses['top_results']
+print(answers)
 
 ```
 

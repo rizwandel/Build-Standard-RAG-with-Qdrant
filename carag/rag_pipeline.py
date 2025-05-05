@@ -25,7 +25,7 @@ class rag_pipe:
         api_key: str,
         collection_name: str = None,
         dense_model_name: Optional[str] = "jinaai/jina-embeddings-v2-base-en",
-        threshold: float = 0.5,
+        threshold: Optional[float] = 0.7,
         sparse_model_name: Optional[str] = "Qdrant/bm25",
         late_interaction_model_name: Optional[str] = "jinaai/jina-colbert-v2",
         llm_model_name: Optional[str]="mistral-large-latest",
@@ -63,10 +63,10 @@ class rag_pipe:
             self.dense_model = TextEmbedding(dense_model_name) if dense_model_name else TextEmbedding("jinaai/jina-embeddings-v2-base-en")
             self.late_interaction_model = LateInteractionTextEmbedding(late_interaction_model_name) if late_interaction_model_name else None 
             self.sparse_model = Bm25(sparse_model_name) if sparse_model_name else None 
-            self.dense_embedding_size = self._get_dense_embedding_size() 
-            self.sparse_embedding_size = self._get_sparse_embedding_size() if self.sparse_model else None
+            self.dense_embedding_size = self.__get_dense_embedding_size() 
+            self.sparse_embedding_size = self.__get_sparse_embedding_size() if self.sparse_model else None
             self.late_embedding_size = (
-                self._get_late_embedding_size() 
+                self.__get_late_embedding_size() 
                 if self.late_interaction_model 
                 else None
             )
@@ -79,7 +79,7 @@ class rag_pipe:
         self.cache_collection_name = "cache" # cache collection name
         self.cache_distance_metric = Distance.COSINE if self.dense_model else Distance.EUCLIDEAN
         self.threshold = threshold
-        self._initialize_cache_collection()
+        self.__initialize_cache_collection()
         # create Qdrant cloud client
         if not url or not api_key:
             raise ValueError("URL and API key must be provided.")
@@ -93,7 +93,7 @@ class rag_pipe:
         self.mistral_api_key = mistral_api_key
         #self._create_or_use_qdrant_collection(collection_name)    
     # create a new Qdrant collection if it doesn't exist or use the existing one
-    def _create_or_use_qdrant_collection(self, collection_name:str):
+    def __create_or_use_qdrant_collection(self, collection_name:str):
         """Create new Qdrant collection."""
         if not collection_name:
             raise ValueError("Collection name must be provided.")
@@ -132,12 +132,17 @@ class rag_pipe:
             print(f"Using existing collection: {collection_name}")
         self.collection_name = collection_name
         
-    def _upload_text_chunks(self, text_chunks: List[dict], collection_name: str, batch_size: int=1):
+    def __upload_text_chunks(
+        self, 
+        text_chunks: List[dict], 
+        collection_name: str, 
+        batch_size: int=1
+        ):
         """calls collection setup internally"""
-        self._create_or_use_qdrant_collection(collection_name)
+        self.__create_or_use_qdrant_collection(collection_name)
         points = []
         for chunk in tqdm(text_chunks, desc="Processing chunks"):
-            point = self._create_point(chunk)
+            point = self.__create_point(chunk)
             points.append(point)
 
         self.db_client.upsert(
@@ -155,8 +160,8 @@ class rag_pipe:
         url:str,
         api_key:str,
         text_chunks: List[dict],
-        collection_name: str,
-        batch_size: int = 1,
+        collection_name: Optional[str],
+        batch_size: Optional[int] = 1,
         **init_kwargs
         ):
         """Upload processed text chunks to the named collection with hybrid embeddings
@@ -170,12 +175,12 @@ class rag_pipe:
         
         """Class method to upload chunks without instantiating the class"""
         instance = cls(url=url, api_key=api_key, collection_name=collection_name, **init_kwargs)
-        instance._upload_text_chunks(text_chunks, collection_name, batch_size)
+        instance.__upload_text_chunks(text_chunks, collection_name, batch_size)
         
-    def _create_point(self, chunk: dict) -> models.PointStruct:
-        dense_embedding = self._get_dense_embedding(chunk['text'])
-        sparse_embedding = self._get_sparse_embedding(chunk['text']) if self.sparse_model else None
-        colbert_embedding = self._get_late_interaction_embedding(chunk['text']) if self.late_interaction_model else None    
+    def __create_point(self, chunk: dict) -> models.PointStruct:
+        dense_embedding = self.__get_dense_embedding(chunk['text'])
+        sparse_embedding = self.__get_sparse_embedding(chunk['text']) if self.sparse_model else None
+        colbert_embedding = self.__get_late_interaction_embedding(chunk['text']) if self.late_interaction_model else None    
         # Build vector payload
         vector_payload = {
             "dense_vector": dense_embedding,
@@ -197,7 +202,7 @@ class rag_pipe:
         ) 
     
     # Dynamically determine embedding sizes
-    def _get_dense_embedding_size(self) -> int:
+    def __get_dense_embedding_size(self) -> int:
         """Dynamically determine embedding size from the dense model"""
         try:
             # Get embedding size by encoding a test sample
@@ -206,12 +211,12 @@ class rag_pipe:
         except Exception as e:
             logger.error("Failed to determine embedding size")
             raise RuntimeError("Embedding size detection failed") from e 
-    def _get_sparse_embedding_size(self) -> int:
+    def __get_sparse_embedding_size(self) -> int:
         """Sparse embeddings are usually vectors with dynamic length, so we default or set a fake fixed size"""
         # BM25 sparse vectors are not dense vectors; no real "size", depends on number of words
         return None  # or return a placeholder if Qdrant needs something 
         
-    def _get_late_embedding_size(self) -> int:
+    def __get_late_embedding_size(self) -> int:
         """Return embedding size based on the stored model name."""
         try:
             model_name = self.late_interaction_model_name.lower()
@@ -224,7 +229,7 @@ class rag_pipe:
         except Exception as e:
             logger.info(f"Failed to determine late embedding size: {e}")
             raise RuntimeError("Late embedding size detection failed.") from e
-    def _get_dense_embedding(self, text: str) -> List[float]:
+    def __get_dense_embedding(self, text: str) -> List[float]:
         """
         Get the embedding for a given text using the dense model.
         Args:
@@ -237,7 +242,7 @@ class rag_pipe:
             return list(self.dense_model.embed(text))[0]
         embeddings = list(self.dense_model.embed([text]))  # Wrap in list
         return embeddings[0].tolist()  # Convert numpy array to list
-    def _get_sparse_embedding(self, text: str):
+    def __get_sparse_embedding(self, text: str):
         """
         Get the sparse embedding for a given text.
         Args:
@@ -248,7 +253,7 @@ class rag_pipe:
         if self.sparse_model is None:
             raise ValueError("Sparse model is not initialized.")
         return next(iter(self.sparse_model.embed(text)))
-    def _get_late_interaction_embedding(self, text: str):
+    def __get_late_interaction_embedding(self, text: str):
         """
         Get the late interaction embedding for a given text.
         Args:
@@ -261,16 +266,16 @@ class rag_pipe:
         else:
             raise ValueError("Late interaction model is not initialized.")
 
-    def _get_embeddings_parallel(self, query: str):
+    def __get_embeddings_parallel(self, query: str):
         """Get all embeddings in parallel using ThreadPoolExecutor."""
         with ThreadPoolExecutor() as executor:
             futures = {
-                'dense': executor.submit(self._get_dense_embedding, query)
+                'dense': executor.submit(self.__get_dense_embedding, query)
             }
             if self.sparse_model:
-                futures['sparse'] = executor.submit(self._get_sparse_embedding, query)
+                futures['sparse'] = executor.submit(self.__get_sparse_embedding, query)
             if self.late_interaction_model:
-                futures['colbert'] = executor.submit(self._get_late_interaction_embedding, query)
+                futures['colbert'] = executor.submit(self.__get_late_interaction_embedding, query)
             
             dense_vec = futures['dense'].result()
             sparse_vec = futures['sparse'].result() if 'sparse' in futures else None
@@ -278,7 +283,7 @@ class rag_pipe:
             
             return dense_vec, sparse_vec, colbert_vec
 
-    def _initialize_cache_collection(self):
+    def __initialize_cache_collection(self):
         """Initialize the cache collection in Qdrant: This method initializes the cache collection with the specified name and configuration.
         It also configures optimizers with a memory mapping threshold.
         Args:
@@ -298,7 +303,7 @@ class rag_pipe:
                 optimizers_config=models.OptimizersConfigDiff(memmap_threshold=10000),
             )
         logger.info(f"Cache collection created successfully: {self.cache_collection_name}")
-    def add_to_cache(self, query:str, response:str, score: float):
+    def __add_to_cache(self, query:str, response:str, score: float):
         try:
             point = models.PointStruct(
                 id=str(uuid.uuid5(uuid.NAMESPACE_OID, query)),
@@ -324,7 +329,7 @@ class rag_pipe:
             # print(f"Failed to add to cache: {e}")
             raise RuntimeError(f"Failed to add to cache: {e}") from e 
 
-    def search_cache(
+    def __search_cache(
         self, 
         query: str, 
         threshold: float = 0.7
@@ -344,7 +349,7 @@ class rag_pipe:
             collection_name=self.cache_collection_name,
             query_vector =("dense_vector",query_embedding),
             limit=1,
-            score_threshold=self._get_cache_threshold(threshold),
+            score_threshold=self.__get_cache_threshold(threshold),
         )
         if not results:
             return None
@@ -366,11 +371,11 @@ class rag_pipe:
             logger.info(f"Cache miss: {query} -> No relevant result found.")
             return None
             
-    def _get_cache_threshold(self, threshold: float=None) -> float:
+    def __get_cache_threshold(self, threshold: float=None) -> float:
         if threshold is not None:
             return threshold
         return 0.7 if self.cache_distance_metric == Distance.COSINE else 0.1
-    def _format_result(self, result, elapsed_time: float) -> dict:
+    def __format_result(self, result, elapsed_time: float) -> dict:
         """Format the cache hit result with metadata."""
         try:
             if not result:
@@ -392,12 +397,11 @@ class rag_pipe:
         except KeyError as e:
             logger.error(f"Malformed cache result payload: {str(e)}")
             raise ValueError(f"Cache result missing expected key: {str(e)}") from e
-     
     def retrieve(
         self,
         query: str,
         collection_name: str,
-        cache_first: bool = True,
+        cache_first: Optional[bool] = True,
         top_k: Optional[int]=20) -> List[models.ScoredPoint]:
         """
         Retrieves relevant documents for a given query from the Qdrant vector database, optionally using cache for faster results.
@@ -415,12 +419,12 @@ class rag_pipe:
         start_time = time.time()
         # Cache check
         if cache_first:
-            if cached := self.search_cache(query):
+            if cached := self.__search_cache(query):
                 logger.info(f"Cache hit for query: {query}")
-                return self._format_result(cached, time.time()-start_time)
+                return self.__format_result(cached, time.time()-start_time)
         
         # Get embeddings in parallel
-        dense_vec, sparse_vec, colbert_vec = self._get_embeddings_parallel(query)
+        dense_vec, sparse_vec, colbert_vec = self.__get_embeddings_parallel(query)
         # Prepare sparse vector if it exists
         #sparse_vector = None
         if sparse_vec:
@@ -458,7 +462,7 @@ class rag_pipe:
             query_response = results[0]
             response = query_response.points[0].payload["response"]
             score = query_response.points[0].score
-            self.add_to_cache(str(query),str(response), int(score))
+            self.__add_to_cache(str(query),str(response), int(score))
         query_responses = results[0].points
         
         return query_responses[:top_k]  # Return top K results
@@ -471,6 +475,8 @@ class rag_pipe:
         api_key: str,
         query: str,
         collection_name: str,
+        cache_first: Optional[bool] = True,
+        top_k: Optional[int] = 20,
         **init_kwargs
     ) -> Union[str, List[models.ScoredPoint]]:
         instance = cls(
@@ -479,7 +485,8 @@ class rag_pipe:
             collection_name=collection_name,
             **init_kwargs
         )
-        return instance.retrieve(query=query, collection_name=collection_name)
+        return instance.retrieve(query=query, collection_name=collection_name, cache_first= True,
+        top_k=20)
     
     
 

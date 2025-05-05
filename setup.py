@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="carag",  
-    version="1.0.7",  
+    version="1.0.8",  
     author="Mohamed Rizwan",
     author_email="rizdelhi@gmail.com",
     description="An efficient python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline.",

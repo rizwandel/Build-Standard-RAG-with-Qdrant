@@ -21,7 +21,7 @@ class GroundGeneration(rag_pipe):
         url:str,
         api_key: str,
         mistral_api_key: str,
-        collection_name: str,
+        collection_name: Optional[str],
         llm_model_name: Optional[str]="mistral-large-latest",
         **kwargs
         ):
@@ -110,8 +110,8 @@ class GroundGeneration(rag_pipe):
     def grounded_generation_from_llm(
         self,
         query: str,
-        llm_model_name: str = "mistral-large-latest",
-        temperature: float = 0.1,
+        llm_model_name: Optional[str] = "mistral-large-latest",
+        temperature: Optional[float] = 0.1,
         max_tokens: Optional[int] = 20000
         ) -> dict:
         """

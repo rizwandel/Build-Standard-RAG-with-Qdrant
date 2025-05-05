@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "carag"
-version = "1.0.7"
+version = "1.0.8"
 description = "An efficient python library for building AI applications using the Retrieval-Augmented Generation (RAG) pipeline."
 readme = "README.md"
 license = { file = "LICENSE" }
